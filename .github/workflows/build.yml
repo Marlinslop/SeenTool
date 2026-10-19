@@ -13,8 +13,6 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      PYTHONUTF8: "1"
     steps:
       - name: Kodu çek
         uses: actions/checkout@v4
@@ -38,7 +36,10 @@ jobs:
         run: pyinstaller --noconfirm --onefile --console --name SeenTool-cli Seen.py
 
       - name: Duman testi
-        run: .\dist\SeenTool-cli.exe --help
+        shell: cmd
+        run: |
+          chcp 65001 >NUL
+          .\dist\SeenTool-cli.exe --help
 
       - name: Artifact olarak yükle
         uses: actions/upload-artifact@v4
