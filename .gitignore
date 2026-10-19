@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec.bak
+
+# Oyun dosyalarını ve çeviri çıktılarını depoya koyma
+Seen.txt
+Seen_TR.txt
+*.tmp
+*.bin
