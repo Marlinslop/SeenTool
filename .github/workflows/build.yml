@@ -1,0 +1,53 @@
+name: Build EXE
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Kodu çek
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Bağımlılıkları kur
+        run: python -m pip install -r requirements.txt
+
+      - name: Sözdizimi kontrolü
+        run: python -m py_compile Seen.py
+
+      - name: GUI exe derle (SeenTool.exe)
+        run: pyinstaller --noconfirm --clean --onefile --windowed --collect-data sv_ttk --name SeenTool Seen.py
+
+      - name: Komut satırı exe derle (SeenTool-cli.exe)
+        run: pyinstaller --noconfirm --onefile --console --name SeenTool-cli Seen.py
+
+      - name: Duman testi
+        run: .\dist\SeenTool-cli.exe --help
+
+      - name: Artifact olarak yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: SeenTool-windows
+          path: dist/*.exe
+          if-no-files-found: error
+
+      - name: Sürüm yayınla (v* etiketi)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true
